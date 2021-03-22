@@ -1,6 +1,4 @@
-#include <M5Atom.h>
-#include "common.h"
-#include "m5atom/EspNowController.h"
+#include "main.h"
 
 enum Command
 {
