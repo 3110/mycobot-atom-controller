@@ -14,4 +14,15 @@
 #include "common.h"
 #include "EspNowController.h"
 
+enum Command
+{
+    GRIPPER_INITIAL_POSITION,
+    GRIPPER_FREE_POSITION,
+    GRIPPER_CLOSE,
+    GRIPPER_OPEN,
+    MAX_NUMBER_OF_COMMANDS,
+};
+
+extern void sendCommand(Command);
+
 #endif

@@ -1,14 +1,5 @@
 #include "main.h"
 
-enum Command
-{
-    GRIPPER_INITIAL_POSITION,
-    GRIPPER_FREE_POSITION,
-    GRIPPER_CLOSE,
-    GRIPPER_OPEN,
-    MAX_NUMBER_OF_COMMANDS,
-};
-
 const uint8_t ESP_NOW_CHANNEL = 1;
 const uint8_t GRIPPER_OPEN_CMD[] = {0xFE, 0xFE, 4, 0x66, 0, 100, 0xFA};
 const uint8_t GRIPPER_CLOSE_CMD[] = {0xFE, 0xFE, 4, 0x66, 1, 100, 0xFA};
@@ -40,7 +31,7 @@ const CRGB GRIPPER_CLOSE_COLOR(0x00, 0xf0, 0x00); // Red
 EspNowController controller(ESP_NOW_CHANNEL);
 size_t pos = 0;
 
-enum Command COMMANDS[] = {
+Command COMMANDS[] = {
     GRIPPER_INITIAL_POSITION,
     GRIPPER_CLOSE,
     GRIPPER_OPEN,
@@ -68,26 +59,31 @@ void loop(void)
 
     if (M5.Btn.wasPressed())
     {
-        switch (COMMANDS[pos])
-        {
-        case GRIPPER_INITIAL_POSITION:
-            controller.send(GRIPPER_INITIAL_POSITION_CMD, sizeof(GRIPPER_INITIAL_POSITION_CMD));
-            break;
-        case GRIPPER_FREE_POSITION:
-            controller.send(GRIPPER_FREE_POSITION_CMD, sizeof(GRIPPER_FREE_POSITION_CMD));
-            break;
-        case GRIPPER_CLOSE:
-            controller.send(GRIPPER_CLOSE_CMD, sizeof(GRIPPER_CLOSE_CMD));
-            break;
-        case GRIPPER_OPEN:
-            controller.send(GRIPPER_OPEN_CMD, sizeof(GRIPPER_OPEN_CMD));
-            break;
-        default:
-            SERIAL_PRINTF("Unknown Command: %d", COMMANDS[pos]);
-            SERIAL_PRINTLN();
-            break;
-        }
-        pos = (pos + 1) % MAX_NUMBER_OF_COMMANDS;
+        sendCommand(COMMANDS[pos]);
         delay(1000);
     }
+}
+
+void sendCommand(Command cmd)
+{
+    switch (cmd)
+    {
+    case GRIPPER_INITIAL_POSITION:
+        controller.send(GRIPPER_INITIAL_POSITION_CMD, sizeof(GRIPPER_INITIAL_POSITION_CMD));
+        break;
+    case GRIPPER_FREE_POSITION:
+        controller.send(GRIPPER_FREE_POSITION_CMD, sizeof(GRIPPER_FREE_POSITION_CMD));
+        break;
+    case GRIPPER_CLOSE:
+        controller.send(GRIPPER_CLOSE_CMD, sizeof(GRIPPER_CLOSE_CMD));
+        break;
+    case GRIPPER_OPEN:
+        controller.send(GRIPPER_OPEN_CMD, sizeof(GRIPPER_OPEN_CMD));
+        break;
+    default:
+        SERIAL_PRINTF("Unknown Command: %d", COMMANDS[pos]);
+        SERIAL_PRINTLN();
+        break;
+    }
+    pos = (pos + 1) % MAX_NUMBER_OF_COMMANDS;
 }
