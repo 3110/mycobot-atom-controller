@@ -17,6 +17,12 @@ alt="動作の様子" width="360" height="270" /></a><br>
 
 [PlatformIO](https://platformio.org/)環境に対応しています。動作確認はWindows 10上で[PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode)を使用して実施しています。
 
+```
+$ git clone https://github.com/3110/mycobot-atom-controller
+$ cd mycobot-atom-controller
+$ platformio run --target=upload
+```
+
 ## 使用方法
 
 ESP-NOWが有効になっていると，M5AtomのLEDが黄色に光ります。
