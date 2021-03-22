@@ -1,8 +1,6 @@
-# ESP-NOWによるMyCobot同期コントローラ
+# ESP-NOWを利用したMyCobotコントローラ
 
-ESP-NOWのブロードキャストを使用して，複数のMyCobotを同期して動かすコントローラです。
-
-M5Atomのボタンを押すとESP-NOWに対応した非公式Transponderにコマンドのバイト列をブロードキャストするという単純な仕組みで動いています。
+ATOM Liteのボタンを押すたびにESP-NOWのブロードキャストを使用してMyCobotにコマンドを送信します。複数のMyCobotを同期して動かすことも可能です。
 
 <div align="center">
 <a href="https://www.youtube.com/watch?feature=player_embedded&v=9meBfmLa9Z8
@@ -13,7 +11,7 @@ alt="動作の様子" width="360" height="270" /></a><br>
 
 ## インストール方法
 
-※MyCobotのBasicにはESP-NOWを有効にした[非公式Transponder](https://github.com/3110/mycobot-transponder)を書き込んでおく必要があります。
+※MyCobotのM5Stack BasicにはESP-NOWを有効にした[非公式Transponder](https://github.com/3110/mycobot-transponder)を書き込んでおく必要があります。
 
 [PlatformIO](https://platformio.org/)環境に対応しています。動作確認はWindows 10上で[PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode)を使用して実施しています。
 
@@ -25,8 +23,8 @@ $ platformio run --target=upload
 
 ## 使用方法
 
-ESP-NOWが有効になっていると，M5AtomのLEDが黄色に光ります。
+起動時にESP-NOWが有効になっていると，ATOM LiteのLEDが黄色に光ります。
 
-M5Atomのボタンを押すとESP-NOWが有効になったTransponderが動いているMyCobotに向けてコマンドが送信されます。
+ATOM Liteのボタンを押すとESP-NOWが有効になったTransponderが動いているMyCobotに向けてコマンドが送信されます。
 
-グリッパーが開くときにM5AtomのLEDが青に，閉じるときに赤に変わります。
+グリッパーが開くときにATOM LiteのLEDが青に，閉じるときに赤に変わります。
