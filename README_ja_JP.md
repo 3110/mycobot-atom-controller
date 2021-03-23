@@ -1,6 +1,6 @@
 # ESP-NOWを利用したMyCobotコントローラ
 
-[英語版][README.md]
+[英語版](README.md)
 
 ATOM Liteのボタンを押すたびにESP-NOWのブロードキャストを使用してMyCobotにコマンドを送信します。複数のMyCobotを同期して動かすことも可能です。
 
