@@ -1,19 +1,22 @@
-# ESP-NOWを利用したMyCobotコントローラ
+# MyCobot Controller using ESP-NOW
 
-ATOM Liteのボタンを押すたびにESP-NOWのブロードキャストを使用してMyCobotにコマンドを送信します。複数のMyCobotを同期して動かすことも可能です。
+[日本語版](README_ja_JP.md)
+
+Everytime you press the button on ATOM Lite, you can send commands to MyCobot with ESP-NOW broadcast.
+You can also synchronize all MyCobots installed the ESP-NOW enabled Transponder.
 
 <div align="center">
 <a href="https://www.youtube.com/watch?feature=player_embedded&v=9meBfmLa9Z8
 " target="_blank"><img src="https://img.youtube.com/vi/9meBfmLa9Z8/0.jpg"
-alt="動作の様子" width="360" height="270" /></a><br>
-動作の様子
+alt="How it works" width="360" height="270" /></a><br>
+How it works
 </div>
 
-## インストール方法
+## Installation
 
-※MyCobotのM5Stack BasicにはESP-NOWを有効にした[非公式Transponder](https://github.com/3110/mycobot-transponder)を書き込んでおく必要があります。
+You need to write [the Unofficial Transponder](https://github.com/3110/mycobot-transponder) into MyCobot Basic to support ESP-NOW.
 
-[PlatformIO](https://platformio.org/)環境に対応しています。動作確認はWindows 10上で[PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode)を使用して実施しています。
+The program can be compiled on the [PlatformIO](https://platformio.org/) environment.  I have tested the program with [PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode) on Windows 10.
 
 ```
 $ git clone https://github.com/3110/mycobot-atom-controller
@@ -21,10 +24,10 @@ $ cd mycobot-atom-controller
 $ platformio run --target=upload
 ```
 
-## 使用方法
+## Usage
 
-起動時にESP-NOWが有効になっていると，ATOM LiteのLEDが黄色に光ります。
+If ESP-NOW is enabled at startup, the LED on ATOM Lite turns yellow.
 
-ATOM Liteのボタンを押すとESP-NOWが有効になったTransponderが動いているMyCobotに向けてコマンドが送信されます。
+When the button on ATOM Lite is pressed, MyCobot commands are sent to MyCobot running the ESP-NOW enabled Transponder.
 
-グリッパーが開くときにATOM LiteのLEDが青に，閉じるときに赤に変わります。
+The LED on ATOM Lite turns blue when the gripper opens and red when it closes.
