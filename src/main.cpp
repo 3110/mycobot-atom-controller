@@ -66,6 +66,7 @@ void loop(void)
 
 void sendCommand(Command cmd)
 {
+    M5.dis.drawpix(0, CONNECT_COLOR);
     switch (cmd)
     {
     case GRIPPER_INITIAL_POSITION:
@@ -75,9 +76,11 @@ void sendCommand(Command cmd)
         controller.send(GRIPPER_FREE_POSITION_CMD, sizeof(GRIPPER_FREE_POSITION_CMD));
         break;
     case GRIPPER_CLOSE:
+        M5.dis.drawpix(0, GRIPPER_CLOSE_COLOR);
         controller.send(GRIPPER_CLOSE_CMD, sizeof(GRIPPER_CLOSE_CMD));
         break;
     case GRIPPER_OPEN:
+        M5.dis.drawpix(0, GRIPPER_OPEN_COLOR);
         controller.send(GRIPPER_OPEN_CMD, sizeof(GRIPPER_OPEN_CMD));
         break;
     default:
