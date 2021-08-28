@@ -1,92 +1,107 @@
-#include "main.h"
+#include <M5Atom.h>
+
+#include "EspNowController.h"
+#include "MovingMean.h"
+#include "MyCobotCommand.h"
+#include "common.h"
 
 const uint8_t ESP_NOW_CHANNEL = 1;
-const uint8_t GRIPPER_OPEN_CMD[] = {0xFE, 0xFE, 4, 0x66, 0, 100, 0xFA};
-const uint8_t GRIPPER_CLOSE_CMD[] = {0xFE, 0xFE, 4, 0x66, 1, 100, 0xFA};
-const uint8_t GRIPPER_INITIAL_POSITION_CMD[] = {0xFE, 0xFE, 0x0F,
-                                                0x22,
-                                                0, 0,
-                                                0, 0,
-                                                0, 0,
-                                                0, 0,
-                                                0, 0,
-                                                0x11, 0x94,
-                                                0x64,
-                                                0xFA};
-const uint8_t GRIPPER_FREE_POSITION_CMD[] = {0xFE, 0xFE, 0x0F,
-                                             0x22,
-                                             0xff, 0x0a,
-                                             0x1e, 0xf7,
-                                             0xcc, 0x20,
-                                             0xcf, 0xa9,
-                                             0xfe, 0xf0,
-                                             0x11, 0x94,
-                                             0x64,
-                                             0xFA};
 
 const CRGB CONNECT_COLOR(0xf0, 0xf0, 0x00);
 const CRGB GRIPPER_OPEN_COLOR(0x00, 0x00, 0xf0);
-const CRGB GRIPPER_CLOSE_COLOR(0x00, 0xf0, 0x00); // Red
+const CRGB GRIPPER_CLOSE_COLOR(0x00, 0xf0, 0x00);  // Red
+
+#ifdef ENABLE_FADER_UNIT
+#ifdef TARGET_M5ATOM
+const uint8_t INPUT_PIN = 32;
+#else
+const uint8_t INPUT_PIN = 36;
+#endif
+const uint16_t FADER_MIN_VALUE = 0;
+const uint16_t FADER_MAX_VALUE = 4096;
+#endif
+
+const uint16_t CLOSE_GRIPPER = 1300;
+const uint16_t OPEN_GRIPPER = 2048;
+const uint16_t GRIPPER_THRETHOLD =
+    CLOSE_GRIPPER + (OPEN_GRIPPER - CLOSE_GRIPPER) / 2;
 
 EspNowController controller(ESP_NOW_CHANNEL);
-size_t pos = 0;
+MyCobotCommandFactory factory;
+bool isGripperOpened = false;
 
-Command COMMANDS[] = {
-    GRIPPER_INITIAL_POSITION,
-    GRIPPER_CLOSE,
-    GRIPPER_OPEN,
-    GRIPPER_CLOSE,
-    GRIPPER_OPEN,
-    GRIPPER_FREE_POSITION,
-    GRIPPER_CLOSE,
-    GRIPPER_OPEN,
-    GRIPPER_CLOSE,
-    GRIPPER_OPEN,
-};
+#ifdef ENABLE_FADER_UNIT
+const size_t WINDOW_SIZE = 3;
+MovingMean<WINDOW_SIZE> movingMean;
 
-void setup(void)
-{
-    M5.begin(true, false, true); // serial, I2C, Display
-    if (controller.begin())
-    {
+uint16_t rawADC = 0;
+uint16_t encodeValue = 0;
+uint16_t prevEncodeValue = 0;
+#endif
+
+SendAnglesCommand* initPosition =
+    static_cast<SendAnglesCommand*>(factory.create(CommandID::SendAngles))
+        ->setAngle(Joint::J1, 0.0)
+        ->setAngle(Joint::J2, 65.0)
+        ->setAngle(Joint::J3, 145.0)
+        ->setAngle(Joint::J4, -150.0)
+        ->setAngle(Joint::J5, 175.0)
+        ->setAngle(Joint::J6, 100.0)
+        ->setSpeed(50);
+
+#ifdef ENABLE_FADER_UNIT
+SetEncoder* setEncoder =
+    static_cast<SetEncoder*>(factory.create(CommandID::SetEncoder))
+        ->setJoint(Joint::Gripper)
+        ->setValue(2048);
+#else
+SetGripperState* gripper =
+    static_cast<SetGripperState*>(factory.create(CommandID::SetGripperState))
+        ->open()
+        ->setSpeed(0);  // In AtomMain 3.2, Only 0 is valid for the speed
+#endif
+
+uint8_t cmdBuf[MyCobotCommand::MAX_COMMAND_LEN] = {0};
+
+void setup(void) {
+    M5.begin(true, false, true);  // serial, I2C, Display
+#ifdef ENABLE_FADER_UNIT
+    pinMode(INPUT_PIN, INPUT);
+#endif
+    if (controller.begin()) {
         M5.dis.drawpix(0, CONNECT_COLOR);
+        size_t n = initPosition->serialize(cmdBuf, sizeof(cmdBuf));
+        controller.send(cmdBuf, n);
     }
 }
 
-void loop(void)
-{
+void loop(void) {
     M5.update();
-
-    if (M5.Btn.wasPressed())
-    {
-        sendCommand(COMMANDS[pos]);
+#ifdef ENABLE_FADER_UNIT
+    rawADC = movingMean.update(analogRead(INPUT_PIN));
+    encodeValue = map(rawADC, FADER_MIN_VALUE, FADER_MAX_VALUE, OPEN_GRIPPER,
+                      CLOSE_GRIPPER);
+    if (abs(encodeValue - prevEncodeValue) > 10) {
+        prevEncodeValue = encodeValue;
+        isGripperOpened = encodeValue > GRIPPER_THRETHOLD;
+        setEncoder->setValue(encodeValue);
+        size_t n = setEncoder->serialize(cmdBuf, sizeof(cmdBuf));
+        controller.send(cmdBuf, n);
+    }
+    delay(100);
+#else
+    if (M5.Btn.wasPressed()) {
+        size_t n = 0;
+        if (isGripperOpened) {
+            gripper->close();
+            isGripperOpened = false;
+        } else {
+            gripper->open();
+            isGripperOpened = true;
+        }
+        n = gripper->serialize(cmdBuf, sizeof(cmdBuf));
+        controller.send(cmdBuf, n);
         delay(1000);
     }
-}
-
-void sendCommand(Command cmd)
-{
-    M5.dis.drawpix(0, CONNECT_COLOR);
-    switch (cmd)
-    {
-    case GRIPPER_INITIAL_POSITION:
-        controller.send(GRIPPER_INITIAL_POSITION_CMD, sizeof(GRIPPER_INITIAL_POSITION_CMD));
-        break;
-    case GRIPPER_FREE_POSITION:
-        controller.send(GRIPPER_FREE_POSITION_CMD, sizeof(GRIPPER_FREE_POSITION_CMD));
-        break;
-    case GRIPPER_CLOSE:
-        M5.dis.drawpix(0, GRIPPER_CLOSE_COLOR);
-        controller.send(GRIPPER_CLOSE_CMD, sizeof(GRIPPER_CLOSE_CMD));
-        break;
-    case GRIPPER_OPEN:
-        M5.dis.drawpix(0, GRIPPER_OPEN_COLOR);
-        controller.send(GRIPPER_OPEN_CMD, sizeof(GRIPPER_OPEN_CMD));
-        break;
-    default:
-        SERIAL_PRINTF("Unknown Command: %d", COMMANDS[pos]);
-        SERIAL_PRINTLN();
-        break;
-    }
-    pos = (pos + 1) % MAX_NUMBER_OF_COMMANDS;
+#endif
 }
