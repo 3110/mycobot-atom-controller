@@ -22,7 +22,7 @@ bool EspNowController::begin(void) {
     initPeer(ESP_NOW_BROADCAST_ADDRESS, broadcastPeer);
     return esp_now_add_peer(&broadcastPeer) == ESP_OK;
 }
-esp_err_t EspNowController::send(const uint8_t *data, const size_t len) {
+esp_err_t EspNowController::send(const uint8_t *data, const size_t len) const {
     return esp_now_send(broadcastPeer.peer_addr, data, len);
 }
 

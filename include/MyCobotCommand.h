@@ -228,41 +228,46 @@ public:
         return ID;
     }
 
-    bool serialize(HardwareSerial &s);
+    bool serialize(HardwareSerial &s) const;
     bool deserialize(HardwareSerial &s);
 
-    size_t serialize(uint8_t *buf, size_t len, size_t pos = 0);
+    size_t serialize(uint8_t *buf, size_t len, size_t pos = 0) const;
     size_t deserialize(const uint8_t *buf, size_t len, size_t pos = 0);
 
-    virtual void dump(HardwareSerial &s);
+    virtual void dump(HardwareSerial &s) const;
 
 protected:
     inline size_t getCommandLength() const {
         return getDataLength() + 3;
     }
-    int findHeader(const uint8_t *buf, size_t len, size_t pos = 0);
-    bool isFoundHeader(HardwareSerial &s);
+    int findHeader(const uint8_t *buf, size_t len, size_t pos = 0) const;
+    bool isFoundHeader(HardwareSerial &s) const;
 
-    virtual size_t serializeData(uint8_t *buf, size_t len, size_t pos = 0) = 0;
+    virtual size_t serializeData(uint8_t *buf, size_t len,
+                                 size_t pos = 0) const = 0;
     virtual size_t deserializeData(const uint8_t *buf, size_t len,
                                    size_t pos = 0) = 0;
     virtual int8_t getDataLength(void) const = 0;
 
-    size_t readInt8(HardwareSerial &s, int8_t &data);
-    size_t readInt16(HardwareSerial &s, int16_t &data);
-    size_t readFloat(HardwareSerial &s, float &data);
-    size_t read(HardwareSerial &s, uint8_t *buf, size_t len, size_t pos = 0);
+    size_t readInt8(HardwareSerial &s, int8_t &data) const;
+    size_t readInt16(HardwareSerial &s, int16_t &data) const;
+    size_t readFloat(HardwareSerial &s, float &data) const;
+    size_t read(HardwareSerial &s, uint8_t *buf, size_t len,
+                size_t pos = 0) const;
 
     size_t readInt8(int8_t &data, const uint8_t *buf, size_t len,
-                    size_t pos = 0);
+                    size_t pos = 0) const;
     size_t readInt16(int16_t &data, const uint8_t *buf, size_t len,
-                     size_t pos = 0);
+                     size_t pos = 0) const;
     size_t readFloat(float &data, const uint8_t *buf, size_t len,
-                     size_t pos = 0);
+                     size_t pos = 0) const;
 
-    size_t writeInt8(int8_t data, uint8_t *buf, size_t len, size_t pos = 0);
-    size_t writeInt16(int16_t data, uint8_t *buf, size_t len, size_t pos = 0);
-    size_t writeFloat(float data, uint8_t *buf, size_t len, size_t pos = 0);
+    size_t writeInt8(int8_t data, uint8_t *buf, size_t len,
+                     size_t pos = 0) const;
+    size_t writeInt16(int16_t data, uint8_t *buf, size_t len,
+                      size_t pos = 0) const;
+    size_t writeFloat(float data, uint8_t *buf, size_t len,
+                      size_t pos = 0) const;
 
 private:
     const CommandID ID;
@@ -286,7 +291,8 @@ public:
     virtual SendAnglesCommand *setSpeed(int8_t speed);
 
 protected:
-    virtual size_t serializeData(uint8_t *buf, size_t len, size_t pos = 0);
+    virtual size_t serializeData(uint8_t *buf, size_t len,
+                                 size_t pos = 0) const;
     virtual size_t deserializeData(const uint8_t *buf, size_t len,
                                    size_t pos = 0);
     virtual int8_t getDataLength(void) const;
@@ -307,7 +313,8 @@ public:
     virtual SetGripperState *setSpeed(int8_t speed);
 
 protected:
-    virtual size_t serializeData(uint8_t *buf, size_t len, size_t pos = 0);
+    virtual size_t serializeData(uint8_t *buf, size_t len,
+                                 size_t pos = 0) const;
     virtual size_t deserializeData(const uint8_t *buf, size_t len,
                                    size_t pos = 0);
     virtual int8_t getDataLength(void) const;
@@ -328,7 +335,8 @@ public:
     virtual SetEncoder *setJoint(Joint joint);
 
 protected:
-    virtual size_t serializeData(uint8_t *buf, size_t len, size_t pos = 0);
+    virtual size_t serializeData(uint8_t *buf, size_t len,
+                                 size_t pos = 0) const;
     virtual size_t deserializeData(const uint8_t *buf, size_t len,
                                    size_t pos = 0);
     virtual int8_t getDataLength(void) const;

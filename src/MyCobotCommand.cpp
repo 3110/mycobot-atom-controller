@@ -6,7 +6,7 @@ MyCobotCommand::MyCobotCommand(CommandID id) : ID(id) {
 MyCobotCommand::~MyCobotCommand(void) {
 }
 
-void MyCobotCommand::dump(HardwareSerial &s) {
+void MyCobotCommand::dump(HardwareSerial &s) const {
     uint8_t buf[MAX_COMMAND_LEN] = {0};
     size_t n = serialize(buf, sizeof(buf));
     for (int i = 0; i < n; ++i) {
@@ -19,7 +19,7 @@ const char *MyCobotCommand::getName(void) const {
     return ID.getName();
 }
 
-bool MyCobotCommand::serialize(HardwareSerial &s) {
+bool MyCobotCommand::serialize(HardwareSerial &s) const {
     uint8_t buf[MAX_COMMAND_LEN] = {0};
     if (serialize(buf, sizeof(buf)) == getCommandLength()) {
         return s.write(buf, getCommandLength()) == getCommandLength();
@@ -40,7 +40,7 @@ bool MyCobotCommand::deserialize(HardwareSerial &s) {
     return false;
 }
 
-size_t MyCobotCommand::serialize(uint8_t *buf, size_t len, size_t pos) {
+size_t MyCobotCommand::serialize(uint8_t *buf, size_t len, size_t pos) const {
     if (buf == nullptr || pos + getCommandLength() >= len) {
         return 0;
     }
@@ -64,7 +64,8 @@ size_t MyCobotCommand::deserialize(const uint8_t *buf, size_t len, size_t pos) {
     return 0;
 }
 
-int MyCobotCommand::findHeader(const uint8_t *buf, size_t len, size_t pos) {
+int MyCobotCommand::findHeader(const uint8_t *buf, size_t len,
+                               size_t pos) const {
     if (buf == nullptr || pos >= len) {
         return -1;
     }
@@ -84,7 +85,7 @@ int MyCobotCommand::findHeader(const uint8_t *buf, size_t len, size_t pos) {
     return -1;
 }
 
-bool MyCobotCommand::isFoundHeader(HardwareSerial &s) {
+bool MyCobotCommand::isFoundHeader(HardwareSerial &s) const {
     bool startHeader = false;
     int c = 0;
     while (true) {
@@ -106,7 +107,7 @@ bool MyCobotCommand::isFoundHeader(HardwareSerial &s) {
     return false;
 }
 
-size_t MyCobotCommand::readInt8(HardwareSerial &s, int8_t &data) {
+size_t MyCobotCommand::readInt8(HardwareSerial &s, int8_t &data) const {
     unsigned long start = millis();
     int c = 0;
     while (millis() - start < READ_TIMEOUT_MS) {
@@ -119,7 +120,7 @@ size_t MyCobotCommand::readInt8(HardwareSerial &s, int8_t &data) {
     return 0;
 }
 
-size_t MyCobotCommand::readInt16(HardwareSerial &s, int16_t &data) {
+size_t MyCobotCommand::readInt16(HardwareSerial &s, int16_t &data) const {
     uint8_t buf[2] = {0};
     size_t n = read(s, buf, sizeof(buf));
     if (n == sizeof(buf)) {
@@ -128,7 +129,7 @@ size_t MyCobotCommand::readInt16(HardwareSerial &s, int16_t &data) {
     return 0;
 }
 
-size_t MyCobotCommand::readFloat(HardwareSerial &s, float &data) {
+size_t MyCobotCommand::readFloat(HardwareSerial &s, float &data) const {
     int16_t v = 0;
     size_t n = readInt16(s, v);
     if (n > 0) {
@@ -138,7 +139,7 @@ size_t MyCobotCommand::readFloat(HardwareSerial &s, float &data) {
 }
 
 size_t MyCobotCommand::read(HardwareSerial &s, uint8_t *buf, size_t len,
-                            size_t pos) {
+                            size_t pos) const {
     if (buf == nullptr || pos + s.available() >= len) {
         return 0;
     }
@@ -155,7 +156,7 @@ size_t MyCobotCommand::read(HardwareSerial &s, uint8_t *buf, size_t len,
 }
 
 size_t MyCobotCommand::readInt8(int8_t &data, const uint8_t *buf, size_t len,
-                                size_t pos) {
+                                size_t pos) const {
     if (buf == nullptr || pos >= len) {
         return 0;
     }
@@ -164,7 +165,7 @@ size_t MyCobotCommand::readInt8(int8_t &data, const uint8_t *buf, size_t len,
 }
 
 size_t MyCobotCommand::readInt16(int16_t &data, const uint8_t *buf, size_t len,
-                                 size_t pos) {
+                                 size_t pos) const {
     if (buf == nullptr || pos + 1 >= len) {
         return 0;
     }
@@ -173,7 +174,7 @@ size_t MyCobotCommand::readInt16(int16_t &data, const uint8_t *buf, size_t len,
 }
 
 size_t MyCobotCommand::readFloat(float &data, const uint8_t *buf, size_t len,
-                                 size_t pos) {
+                                 size_t pos) const {
     int16_t v = 0;
     size_t n = readInt16(v, buf, len, pos);
     if (n > 0) {
@@ -183,7 +184,7 @@ size_t MyCobotCommand::readFloat(float &data, const uint8_t *buf, size_t len,
 }
 
 size_t MyCobotCommand::writeInt8(int8_t data, uint8_t *buf, size_t len,
-                                 size_t pos) {
+                                 size_t pos) const {
     if (buf == nullptr || pos >= len) {
         return 0;
     }
@@ -192,7 +193,7 @@ size_t MyCobotCommand::writeInt8(int8_t data, uint8_t *buf, size_t len,
 }
 
 size_t MyCobotCommand::writeInt16(int16_t data, uint8_t *buf, size_t len,
-                                  size_t pos) {
+                                  size_t pos) const {
     if (buf == nullptr || pos + 1 >= len) {
         return 0;
     }
@@ -203,7 +204,7 @@ size_t MyCobotCommand::writeInt16(int16_t data, uint8_t *buf, size_t len,
 }
 
 size_t MyCobotCommand::writeFloat(float data, uint8_t *buf, size_t len,
-                                  size_t pos) {
+                                  size_t pos) const {
     if (buf == nullptr || pos + 1 >= len) {
         return 0;
     }
@@ -336,7 +337,8 @@ SendAnglesCommand::SendAnglesCommand(void)
 SendAnglesCommand::~SendAnglesCommand(void) {
 }
 
-size_t SendAnglesCommand::serializeData(uint8_t *buf, size_t len, size_t pos) {
+size_t SendAnglesCommand::serializeData(uint8_t *buf, size_t len,
+                                        size_t pos) const {
     if (buf == nullptr || pos + getDataLength() >= len) {
         return 0;
     }
@@ -409,7 +411,8 @@ SetGripperState *SetGripperState::setSpeed(int8_t speed) {
     return this;
 }
 
-size_t SetGripperState::serializeData(uint8_t *buf, size_t len, size_t pos) {
+size_t SetGripperState::serializeData(uint8_t *buf, size_t len,
+                                      size_t pos) const {
     if (buf == nullptr || pos + getDataLength() >= len) {
         return 0;
     }
@@ -476,7 +479,7 @@ SetEncoder *SetEncoder::setJoint(Joint joint) {
     return this;
 }
 
-size_t SetEncoder::serializeData(uint8_t *buf, size_t len, size_t pos) {
+size_t SetEncoder::serializeData(uint8_t *buf, size_t len, size_t pos) const {
     if (buf == nullptr || pos + getDataLength() >= len) {
         return 0;
     }

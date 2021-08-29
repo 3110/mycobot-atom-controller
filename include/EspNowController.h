@@ -10,7 +10,7 @@ public:
     virtual ~EspNowController(void);
 
     bool begin(void);
-    esp_err_t send(const uint8_t *data, const size_t len);
+    esp_err_t send(const uint8_t *data, const size_t len) const;
 
 protected:
     void initEspNow(void);
