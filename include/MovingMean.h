@@ -3,28 +3,55 @@
 
 #include <array>
 
-template <std::size_t WINDOW_SIZE>
+template <class T = uint16_t, std::size_t WINDOW_SIZE = 3>
 class MovingMean {
 public:
-    MovingMean(void) : window{0,}, pos(0), sum(0) {
+    MovingMean(void)
+        : firstTime(true),
+          window{
+              0,
+          },
+          pos(0),
+          sum(0) {
     }
 
     ~MovingMean(void) {
     }
 
-    uint16_t update(uint16_t v) {
-        pos %= WINDOW_SIZE;
-        sum -= window[pos];
-        window[pos] = v;
-        sum += v;
-        ++pos;
-        return static_cast<uint16_t>(sum / WINDOW_SIZE);
+    T update(T v) {
+        if (firstTime) {
+            firstTime = false;
+            window.fill(v);
+            sum = v * WINDOW_SIZE;
+        } else {
+            sum -= window[pos];
+            window[pos] = v;
+            sum += v;
+        }
+        pos = (pos + 1) % WINDOW_SIZE;
+        return get();
+    }
+
+    inline T get(void) const {
+        return static_cast<T>(sum / WINDOW_SIZE);
+    }
+
+    void dump(HardwareSerial& s) {
+        s.print("[");
+        s.print(window[0]);
+        for (int i = 1; i < WINDOW_SIZE; ++i) {
+            s.print(", ");
+            s.print(window[i]);
+        }
+        s.print("] -> ");
+        s.println(get());
     }
 
 private:
-    std::array<uint16_t, WINDOW_SIZE> window;
+    bool firstTime;
+    std::array<T, WINDOW_SIZE> window;
     size_t pos;
-    uint16_t sum;
+    double sum;
 };
 
 #endif
